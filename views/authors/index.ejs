@@ -4,7 +4,8 @@
 	<input type='text' name='name' class='form-control' value=<%= searchOption %>>
 	<button type='submit' clas='btn btn-primary'>Search</button>
 </form>
-
-<% authors.forEach(author=>{ %>
-	<div><p><%= author.name %></p></div>
-<% }) %>
+<div class='container'>
+	<% authors.forEach(author=>{ %>
+		<div><p><%= author.name %></p></div>
+	<% }) %>
+</div>

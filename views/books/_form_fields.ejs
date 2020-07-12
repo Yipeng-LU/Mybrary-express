@@ -1,0 +1,25 @@
+<label>Title</label>
+<input required type='text' name='title' value='<%= book.title %>' class='form-control'>
+
+<label>Author</label>
+<select name='author' required class="custom-select">
+	<% authors.forEach(author=>{%>
+		<% if (author.id==book.author){ %>
+			<option selected label='<%= author.name %>' value='<%= author.id %>'>
+		<% }else{ %>
+			<option label='<%= author.name %>' value='<%= author.id %>'>
+		<% } %>
+	<% }) %>
+</select>
+
+<label>Publish date</label>
+<input required type='date' name='publishDate' value='<%= book.publishDate==null ? '' :book.publishDate.toISOString().split('T')[0] %>' class='form-control'>
+
+<label>Page count</label>
+<input required type='number' name='pageCount' value='<%= book.pageCount %>' min='1' class='form-control'>
+
+<label>Cover</label>
+<input required type='file' name='cover' class='form-control'>
+
+<label>Description</label>
+<textarea name='description' class='form-control'><%= book.description %></textarea>
