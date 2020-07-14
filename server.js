@@ -14,7 +14,7 @@ mongoose.connect(process.env.DATABASE_URL,{ useNewUrlParser: true,useUnifiedTopo
 .catch(err=>{
 	console.log(err)
 })
-app.use(express.urlencoded({extended:false}))
+app.use(express.urlencoded({extended:false,limit:'10mb'}))
 app.set('view engine','ejs')
 app.set('views',__dirname+'/views')
 app.set('layout','layouts/layout')

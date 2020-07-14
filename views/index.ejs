@@ -1,6 +1,6 @@
 <h2>Recently added books</h2>
 <div class='container'>
 	<% books.forEach(book=>{ %>
-		<img height='150' width='100' src='uploads/bookCovers/<%= book.coverImageName %>'>
+		<img height='150' width='100' src='<%= book.coverImageData %>'>
 	<% }) %>
 </div>
