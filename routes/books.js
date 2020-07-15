@@ -31,6 +31,24 @@ router.get('/new',async (req,res)=>{
 		res.redirect('/books')
 	}
 })
+router.get('/:id',async (req,res)=>{
+	try{
+		const book=await Book.findById(req.params.id)
+		const author=await Author.findById(book.author)
+		res.render('books/show',{book:book,author:author})
+	}catch{
+		res.redirect('/')
+	}
+})
+router.get('/:id/edit',async (req,res)=>{
+	try{
+		const book=await Book.findById(req.params.id)
+		const authors=await Author.find()
+		res.render('books/edit',{book:book,authors:authors})
+	} catch{
+		res.redirect('/books')
+	}
+})
 router.post('/',async (req,res)=>{
 
 	const book=new Book({
@@ -47,15 +65,60 @@ router.post('/',async (req,res)=>{
 	}
 	try{
 		const newBook=await book.save()
-		//res.redirect(`books/${newBook.id}`)
-		res.redirect('books')
-
+		res.redirect(`books/${newBook.id}`)
 	}catch{
 		try{
 			const authors=await Author.find()
 			res.render('books/new',{authors:authors,book:book,errorMsg:'Error creating a new book'})
 		} catch{
 			res.redirect('/books')
+		}
+	}
+})
+router.put('/:id',async (req,res)=>{
+	let book
+	try{
+		book=await Book.findById(req.params.id)
+		book.title=req.body.title
+		book.author=req.body.author
+		book.publishDate=new Date(req.body.publishDate)
+		book.pageCount=req.body.pageCount
+		book.description=req.body.description
+		if (req.body.cover){
+			const cover=JSON.parse(req.body.cover)
+			if (cover!=null && imageMimeTypes.includes(cover.type)){
+				book.coverImage=new Buffer.from(cover.data,'base64')
+				book.coverImageType=cover.type
+			}
+		}
+		await book.save()
+		res.redirect(`/books/${book.id}`)
+	}catch{
+		try{
+			if (book!=null){
+				const authors=await Author.find()
+				res.render('books/edit',{authors:authors,book:book,errorMsg:'Error editing a new book'})
+			}
+			else{
+				res.redirect('/')
+			}
+		} catch{
+			res.redirect('/books')
+		}
+	}
+})
+router.delete('/:id',async (req,res)=>{
+	let book
+	try{
+		book=await Book.findById(req.params.id)
+		await book.remove()
+		res.redirect('/books')
+	}catch{
+		if (book!=null){
+			res.render('books/show',{book,errorMsg:'Error deleting the book'})
+		}
+		else{
+			res.redirect('/')
 		}
 	}
 })
