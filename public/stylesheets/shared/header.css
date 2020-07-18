@@ -1,0 +1,11 @@
+.my-nav-title{
+	font-size:3rem;
+	font-weight:bold;
+	color:#4db4e8;
+}
+.my-nav-link {
+	color:#c2a3c9;
+}
+.navbar a:hover{
+	color:white
+}

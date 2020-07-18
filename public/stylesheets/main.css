@@ -1,0 +1,23 @@
+@import 'shared/header.css';
+@import 'shared/buttons.css';
+@import 'shared/form.css';
+@import 'shared/author.css';
+@import 'shared/book.css';
+body{
+	background:#c5e8d6;
+	color:#576960;
+}
+.my-container{
+	max-width:1200px;
+	margin:auto;
+	margin-bottom: 3rem
+}
+.my-inner-container{
+	margin:0 2rem;
+}
+.page-header{
+	font-size:2rem;
+	font-weight:500;
+	color:#80c940;
+}
+

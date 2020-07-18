@@ -1,14 +1,24 @@
-<h2>Search authors</h2>
+<h2 class='page-header'>Search authors</h2>
 <form action='/authors' method='get'>
-	<label>Search authors</label>
-	<input type='text' name='name' class='form-control' value=<%= searchOption %>>
-	<button type='submit' clas='btn btn-primary'>Search</button>
+	<div class='form-row'>
+		<div class='form-item'>
+			<label>Name</label>
+			<input type='text' name='name' class='form-control' value=<%= searchOption %>>
+		</div>
+	</div>
+	<div class='form-row form-btn'>
+		<button type='submit' class='btn btn-primary'>Search</button>
+	</div>
 </form>
 <div class='container'>
 	<% authors.forEach(author=>{ %>
-		<div><p><%= author.name %></p></div>
-		<a href='/authors/<%= author.id %>' class='btn btn-primary'>View</a>
-		<a href='/authors/<%= author.id %>/edit' class='btn btn-primary'>Edit</a>
-		<%- include('../partials/deleteForm',{url:`/authors/${author.id}`}) %>
+		<div class='author-row'>
+			<div class='author-name'><%= author.name %></div>
+			<div class='btn-row'>
+				<a href='/authors/<%= author.id %>' class='btn btn-primary first-btn'>View</a>
+				<a href='/authors/<%= author.id %>/edit' class='btn btn-primary'>Edit</a>
+				<%- include('../partials/deleteForm',{url:`/authors/${author.id}`}) %>
+			</div>
+		</div>
 	<% }) %>
 </div>

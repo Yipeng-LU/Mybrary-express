@@ -1,8 +1,10 @@
-<h2>Recently added books</h2>
+<h2 class='page-header'>Recently added books</h2>
 <div class='container'>
-	<% books.forEach(book=>{ %>
-		<a href='/books/<%= book.id %>'>
-			<img height='150' width='100' src='<%= book.coverImageData %>'>
-		</a>
-	<% }) %>
+	<div class='book-grid book-grid-large'>
+		<% books.forEach(book=>{ %>
+			<a href='/books/<%= book.id %>'>
+				<img  class='book-cover book-cover-large' src='<%= book.coverImageData %>'>
+			</a>
+		<% }) %>
+	</div>
 </div>
