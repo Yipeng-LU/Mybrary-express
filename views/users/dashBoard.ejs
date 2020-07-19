@@ -1,0 +1,13 @@
+<h2 class='page-header'>Welcome, <%= user.name %></h2>
+<% if (typeof books!='undefined'&&books.length>0){ %>
+	<h3>My favourite books</h3>
+	<div class='book-grid book-grid-large'>
+		<% books.forEach(book=>{ %>
+			<a href='/books/<%= book.id %>'>
+				<img  class='book-cover book-cover-large' src='<%= book.coverImageData %>'>
+			</a>
+		<% }) %>
+	</div>
+<% } %>
+<br>
+<a href='/users/logout' class='btn btn-danger'>Log out</a>

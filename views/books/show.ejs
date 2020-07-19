@@ -6,6 +6,11 @@
 			<a href='/books/<%= book.id %>/edit' class='btn btn-primary'>Edit</a>
 			<%- include('../partials/deleteForm',{url:`/books/${book.id}`}) %>
 			<a href='/authors/<%= author.id %>' class='btn btn-primary book-details-view-btn'>View author</a>
+			<% if (status==0) {%>
+				<a href='/books/<%= book.id %>/favourite' class='btn btn-primary book-details-fav-btn'>Add to favourite</a>
+			<% }else{ %>
+				<a href='/books/<%= book.id %>/remove' class='btn btn-danger book-details-fav-btn'>Remove from favourite</a>
+			<% } %>
 		</div>
 	</div>
 	<div>

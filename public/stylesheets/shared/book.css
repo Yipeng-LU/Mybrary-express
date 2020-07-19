@@ -35,10 +35,13 @@
 	align-content:flex-start;
 	align-items: flex-start;
 	justify-items:stretch;
-	grid-template-areas: 'edit delete' 'view view';
+	grid-template-areas: 'edit delete' 'view view' 'fav fav';
 	grid-gap:0.5rem;
 	margin-top: 0.5rem;
 }
 .book-details-view-btn{
 	grid-area: view;
+}
+.book-details-fav-btn{
+	grid-area: fav;
 }

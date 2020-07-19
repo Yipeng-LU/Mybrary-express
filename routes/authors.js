@@ -46,6 +46,7 @@ router.get('/:id/edit',async (req,res)=>{
 		res.redirect('authors')
 	}
 })
+
 router.put('/:id',async (req,res)=>{
 	let author
 	let name

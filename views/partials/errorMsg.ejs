@@ -1,4 +1,4 @@
-<%if (typeof errorMsg!='undefined'){%>
+<%if (typeof errorMsg!='undefined'&&errorMsg.length>0){%>
 	<div class="alert alert-warning alert-dismissible fade show" role="alert">
 	  <%= errorMsg %>
 	  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -6,3 +6,27 @@
 	  </button>
 	</div>
 <% } %>
+<%if (typeof successMsg!='undefined'&&successMsg.length>0){%>
+	<div class="alert alert-warning alert-dismissible fade show" role="alert">
+	  <%= successMsg %>
+	  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+	    <span aria-hidden="true">&times;</span>
+	  </button>
+	</div>
+<% } %>
+<% if (typeof errors!='undefined'){ errors.forEach( (error)=>{%>
+	<div class="alert alert-warning alert-dismissible fade show" role="alert">
+	  <%= error.msg %>
+	  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+	    <span aria-hidden="true">&times;</span>
+	  </button>
+	</div>
+<% })} %>
+<% if (typeof error!='undefined'&&error.length!=0){ %>
+	<div class="alert alert-warning alert-dismissible fade show" role="alert">
+	  <%= error %>
+	  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+	    <span aria-hidden="true">&times;</span>
+	  </button>
+	</div>
+<% }%>

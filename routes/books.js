@@ -2,6 +2,7 @@ const express=require('express')
 const router=express.Router()
 const Book=require('../models/book')
 const Author=require('../models/author')
+const User=require('../models/user')
 const imageMimeTypes=['image/jpeg','image/png','images/gif']
 router.get('/',async (req,res)=>{
 	let query=Book.find()
@@ -35,7 +36,14 @@ router.get('/:id',async (req,res)=>{
 	try{
 		const book=await Book.findById(req.params.id)
 		const author=await Author.findById(book.author)
-		res.render('books/show',{book:book,author:author})
+		let status
+		if (req.isAuthenticated()&&req.user.books.includes(req.params.id)){
+			status=1
+		}
+		else{
+			status=0
+		}
+		res.render('books/show',{book:book,author:author,successMsg:req.flash('successMsg'),errorMsg:req.flash('errorMsg'),status:status})
 	}catch{
 		res.redirect('/')
 	}
@@ -46,6 +54,41 @@ router.get('/:id/edit',async (req,res)=>{
 		const authors=await Author.find()
 		res.render('books/edit',{book:book,authors:authors})
 	} catch{
+		res.redirect('/books')
+	}
+})
+router.get('/:id/favourite',async (req,res)=>{
+	if(req.isAuthenticated()){
+		let user=req.user
+		user.books.push(req.params.id)
+		try{
+			await user.save()
+			req.flash('successMsg','You have successfully added this book')
+			res.redirect(`/books/${req.params.id}`)
+		}
+		catch{
+			res.redirect('/books')
+		}
+	}
+	else{
+		res.render('users/login',{errorMsg:'Please log in'})
+	}
+})
+router.get('/:id/remove',async (req,res)=>{
+	let user=req.user
+	var i
+	for (i=0;i<user.books.length;i++){
+		if (user.books[i]==req.params.id){
+			user.books.splice(i,1)
+			break
+		}
+	}
+	try{
+		await user.save()
+		req.flash('successMsg','You have successfully deleted this book')
+		res.redirect(`/books/${req.params.id}`)
+	}
+	catch{
 		res.redirect('/books')
 	}
 })
