@@ -84,7 +84,7 @@ router.get('/dashboard',async (req,res)=>{
 			}
 		}
 		await user.save()
-		res.render('users/dashboard',{user:req.user,books:books})
+		res.render('users/dashBoard',{user:req.user,books:books})
 	}
 	else{
 		req.flash('errorMsg','Please login')
