@@ -1,9 +1,9 @@
-<h1>Login</h1>
+<h1 class='page-header'>Login</h1>
 <form action='/users/login' method='POST'>
 	<div class='form-row'>
 		<div class='form-item'>
 			<label>User name</label>
-			<input required type='name' name='name' class='form-control' placeholder='enter user name' />
+			<input required type='name' name='name' class='form-control' placeholder='enter user name' value="<%= typeof name!='undefined' ? name : '' %>"/>
 		</div>
 	</div>
 	<div class='form-row'>

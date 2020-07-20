@@ -19,5 +19,18 @@ body{
 	font-size:2rem;
 	font-weight:500;
 	color:#80c940;
+	margin-bottom: 1rem;
+	margin-top: 1rem
+}
+.description-text{
+	word-wrap: break-word;
+	font-size:1.2rem;
+}
+.comment-text{
+	word-wrap: break-word;
+	font-size:1.2rem;
+	background:#e6edb7;
+	margin-bottom: 1px;
+	border:1px solid white;
 }
 

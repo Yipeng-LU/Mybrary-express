@@ -34,6 +34,14 @@ const bookSchema=new mongoose.Schema({
 		type:mongoose.Schema.Types.ObjectId,
 		required:true,
 		ref:'Author'
+	},
+	userId:{
+		type:String,
+		required:true
+	},
+	userName:{
+		type:String,
+		required:true
 	}
 })
 bookSchema.virtual('coverImageData').get(function(){

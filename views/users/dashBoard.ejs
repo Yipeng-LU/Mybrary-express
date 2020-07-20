@@ -1,4 +1,9 @@
 <h2 class='page-header'>Welcome, <%= user.name %></h2>
+<div class='btn-row'>
+	<a href='/users/logout' class='btn btn-danger' onclick="return confirm('Are you sure?')">Log out</a>
+	<a href='/users/changePassword' class='btn btn-primary'>Change password</a>
+</div>
+<br>
 <% if (typeof books!='undefined'&&books.length>0){ %>
 	<h3>My favourite books</h3>
 	<div class='book-grid book-grid-large'>
@@ -9,5 +14,3 @@
 		<% }) %>
 	</div>
 <% } %>
-<br>
-<a href='/users/logout' class='btn btn-danger' onclick="return confirm('Are you sure?')">Log out</a>

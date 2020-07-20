@@ -21,8 +21,29 @@
 			<div><%= book.publishDate.toDateString() %></div>
 			<div class='book-details-label'>Page count: </div>
 			<div><%= book.pageCount %></div>
+			<div class='book-details-label'>Uploaded by: </div>
+			<div><%= book.userName %></div>
 			<div class='book-details-label'>Description: </div>
-			<div><%= book.description %></div>
+			<div class='description-text'><%= book.description %></div>
 		</div>
 	</div>
 </div>
+<h2 class='page-header'>Add comments</h2>
+<form action='/books/<%= book.id %>/comments' method='POST'>
+	<div class='form-row'>
+		<div class='form-item'>
+			<textarea required name='comment'></textarea>
+		</div>
+	</div>
+	<div class='btn-row form-btn form-row'>
+		<button type='submit' class='btn btn-success'>Create</button>
+	</div>
+</form>
+<% comments.forEach(comment=>{ %>
+	<div class='comment-text'>
+		<%= comment.content %><br>User: <%= comment.userName %>
+		<div class='btn-row'>
+			<%- include('../partials/deleteForm',{url:`/books/${book.id}/comments/${comment.id}`}) %>
+		</div>
+	</div>
+<% }) %>

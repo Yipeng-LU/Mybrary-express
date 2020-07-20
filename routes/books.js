@@ -3,11 +3,12 @@ const router=express.Router()
 const Book=require('../models/book')
 const Author=require('../models/author')
 const User=require('../models/user')
+const Comment=require('../models/comment')
 const imageMimeTypes=['image/jpeg','image/png','images/gif']
 router.get('/',async (req,res)=>{
 	let query=Book.find()
 	if (req.query.title!=null &&req.query.title!=''){
-		query=query.regex('title',new RegExp(req,query.title,'i'))
+		query=query.regex('title',new RegExp(req.query.title,'i'))
 	}
 	if (req.query.publishedBefore!=null &&req.query.publishedBefore!=''){
 		query=query.lte('publishDate',req.query.publishedBefore)
@@ -15,27 +16,43 @@ router.get('/',async (req,res)=>{
 	if (req.query.publishedAfter!=null &&req.query.publishedAfter!=''){
 		query=query.gte('publishDate',req.query.publishedAfter)
 	}
+	let searchMsg
 	try{
 		const books=await query.exec()
-		res.render('books/index',{books:books,searchOption:req.query})
+		if ((req.query.title!=null &&req.query.title!='')||(req.query.publishedBefore!=null &&req.query.publishedBefore!='')||(req.query.publishedAfter!=null &&req.query.publishedAfter!='')){
+			if (books.length<2){
+				searchMsg=`Found ${books.length} book related to the search`
+			}
+			else{
+				searchMsg=`Found ${books.length} books related to the search`
+			}
+		}
+		res.render('books/index',{books:books,searchOption:req.query,successMsg:req.flash('successMsg'),errorMsg:req.flash('errorMsg'),searchMsg:searchMsg})
 	}catch{
 		res.redirect('/')
 	}
 
 })
 router.get('/new',async (req,res)=>{
-	try{
-		const authors=await Author.find()
-		const book=new Book()
-		res.render('books/new',{authors:authors,book:book})
-	} catch{
-		res.redirect('/books')
+	if (req.isAuthenticated()){
+		try{
+			const authors=await Author.find()
+			const book=new Book()
+			res.render('books/new',{authors:authors,book:book})
+		} catch{
+			res.redirect('/books')
+		}
+	}
+	else{
+		req.flash('errorMsg','Please log in')
+		res.redirect('/users/login')
 	}
 })
 router.get('/:id',async (req,res)=>{
 	try{
 		const book=await Book.findById(req.params.id)
 		const author=await Author.findById(book.author)
+		const comments=await Comment.find({book:req.params.id})
 		let status
 		if (req.isAuthenticated()&&req.user.books.includes(req.params.id)){
 			status=1
@@ -43,18 +60,27 @@ router.get('/:id',async (req,res)=>{
 		else{
 			status=0
 		}
-		res.render('books/show',{book:book,author:author,successMsg:req.flash('successMsg'),errorMsg:req.flash('errorMsg'),status:status})
+		res.render('books/show',{book:book,author:author,successMsg:req.flash('successMsg'),errorMsg:req.flash('errorMsg'),status:status,comments:comments})
 	}catch{
 		res.redirect('/')
 	}
 })
 router.get('/:id/edit',async (req,res)=>{
-	try{
+	if (req.isAuthenticated()){
 		const book=await Book.findById(req.params.id)
-		const authors=await Author.find()
-		res.render('books/edit',{book:book,authors:authors})
-	} catch{
-		res.redirect('/books')
+		if (req.user.id==book.userId){
+			const book=await Book.findById(req.params.id)
+			const authors=await Author.find()
+			res.render('books/edit',{book:book,authors:authors})
+		}
+		else{
+			req.flash('errorMsg','You do not have right to edit the book')
+			res.redirect(`/books/${req.params.id}`)
+		}
+	}
+	else{
+		req.flash('errorMsg','Please log in')
+		res.redirect('/users/login')
 	}
 })
 router.get('/:id/favourite',async (req,res)=>{
@@ -74,6 +100,24 @@ router.get('/:id/favourite',async (req,res)=>{
 		res.render('users/login',{errorMsg:'Please log in'})
 	}
 })
+router.post('/:id/comments',async (req,res)=>{
+	if (req.isAuthenticated()){
+		const comment=new Comment({
+			content:req.body.comment,
+			userId:req.user.id,
+			book:req.params.id,
+			userName:req.user.name
+		})
+		await comment.save()
+		req.flash('successMsg','You have successfully created a comment')
+		res.redirect(`/books/${req.params.id}`)
+	}
+	else{
+		req.flash('errorMsg','Please login')
+		res.redirect('/users/login')
+	}
+	
+})
 router.get('/:id/remove',async (req,res)=>{
 	let user=req.user
 	var i
@@ -85,7 +129,7 @@ router.get('/:id/remove',async (req,res)=>{
 	}
 	try{
 		await user.save()
-		req.flash('successMsg','You have successfully deleted this book')
+		req.flash('successMsg','You have successfully deleted the book')
 		res.redirect(`/books/${req.params.id}`)
 	}
 	catch{
@@ -100,6 +144,8 @@ router.post('/',async (req,res)=>{
 		publishDate:new Date(req.body.publishDate),
 		pageCount:req.body.pageCount,
 		description:req.body.description,
+		userId:req.user.id,
+		userName:req.user.name
 	})
 	const cover=JSON.parse(req.body.cover)
 	if (cover!=null && imageMimeTypes.includes(cover.type)){
@@ -108,6 +154,7 @@ router.post('/',async (req,res)=>{
 	}
 	try{
 		const newBook=await book.save()
+		req.flash('successMsg','You have successfully created the book')
 		res.redirect(`books/${newBook.id}`)
 	}catch{
 		try{
@@ -135,6 +182,7 @@ router.put('/:id',async (req,res)=>{
 			}
 		}
 		await book.save()
+		req.flash('successMsg','You have successfully edited the book')
 		res.redirect(`/books/${book.id}`)
 	}catch{
 		try{
@@ -151,18 +199,46 @@ router.put('/:id',async (req,res)=>{
 	}
 })
 router.delete('/:id',async (req,res)=>{
-	let book
-	try{
-		book=await Book.findById(req.params.id)
-		await book.remove()
-		res.redirect('/books')
-	}catch{
-		if (book!=null){
-			res.render('books/show',{book,errorMsg:'Error deleting the book'})
+	if (req.isAuthenticated()){
+		let book=await Book.findById(req.params.id)
+		if (req.user.id==book.userId|| book.userId==null){
+			comments=Comment.find({book:req.params.id})
+			var i
+			var comment
+			for (i=0;i<comments.length;i++){
+				comment=comments[i]
+				await comment.remove()
+			}
+			await book.remove()
+			req.flash('successMsg','You have successfully deleted the book')
+			res.redirect('/books')
 		}
 		else{
-			res.redirect('/')
+			req.flash('errorMsg','You do not have the right to delete this book')
+			res.redirect(`/books/${req.params.id}`)
 		}
+	}
+	else{
+		req.flash('errorMsg','Please login')
+		res.redirect('/users/login')
+	}
+})
+router.delete('/:bookId/comments/:commentId',async (req,res)=>{
+	if (req.isAuthenticated()){
+		let comment=await Comment.findById(req.params.commentId)
+		if (req.user.id==comment.userId){
+			await comment.remove()
+			req.flash('successMsg','You have successfully deleted the comment')
+			res.redirect(`/books/${req.params.bookId}`)
+		}
+		else{
+			req.flash('errorMsg','You do not have the right to delete this comment')
+			res.redirect(`/books/${req.params.bookId}`)
+		}
+	}
+	else{
+		req.flash('errorMsg','Please login')
+		res.redirect('/users/login')
 	}
 })
 

@@ -9,11 +9,21 @@ router.get('/login',(req,res)=>{
 		res.render('users/dashboard',{user:req.user})
 	}
 	else{
-		res.render('users/login',{successMsg:req.flash('successMsg'),errorMsg:req.flash('errorMsg'),error:req.flash('error')})
+		res.render('users/login',{errorMsg:req.flash('errorMsg'),successMsg:req.flash('successMsg'),error:req.flash('error'),name:req.flash('name')})
 	}
 })
 router.get('/register',(req,res)=>{
 	res.render('users/register')
+})
+router.get('/changePassword',(req,res)=>{
+	if(req.isAuthenticated()){
+		res.render('users/changePassword')
+	}
+	else{
+		req.flash('errorMsg','Please log in')
+		res.redirect('/users/login')
+	}
+	res.render('users/changePassword')
 })
 router.post('/register',async (req,res)=>{
 	const {name,password,password2}=req.body
@@ -43,8 +53,7 @@ router.post('/register',async (req,res)=>{
 				}
 				newUser.password=hash
 				newUser.save().then((user)=>{
-					req.flash('successMsg','You have successfully registered')
-					res.redirect('/users/login')
+					res.render('users/login',{successMsg:'You have successfully registered',name:name})
 				}).catch((err)=>{
 					console.log(err)
 				})
@@ -52,6 +61,39 @@ router.post('/register',async (req,res)=>{
 		})
 	}
 
+})
+router.post('/changePassword',(req,res)=>{
+	let errors=[]
+	if (req.body.password!=req.body.password2){
+		errors.push({msg:'Passwords do not match'})
+	}
+	if (req.body.password.length<6){
+		errors.push({msg:'Password should be at least 6 characters'})
+	}
+	if (errors.length>0){
+		res.render('users/changePassword',{errors:errors})
+	}
+	else{
+		let user=req.user
+		const name=user.name
+		user.password=req.body.password
+		bcrypt.genSalt(10,(err,salt)=>{
+			bcrypt.hash(user.password,salt,(err,hash)=>{
+				if (err){
+					throw err
+				}
+				user.password=hash
+				user.save().then((user)=>{
+					req.logout()
+					req.flash('successMsg','You have successfully changed your password')
+					req.flash('name',name)
+					res.redirect('/users/login')
+				}).catch((err)=>{
+					console.log(err)
+				})
+			})
+		})
+	}
 })
 router.post('/login',(req,res,next)=>{
 	passport.authenticate('local',{
@@ -61,8 +103,10 @@ router.post('/login',(req,res,next)=>{
 	})(req,res,next)
 })
 router.get('/logout',(req,res)=>{
+	const name=req.user.name
 	req.logout()
 	req.flash('successMsg','You have successfully logged out')
+	req.flash('name',name)
 	res.redirect('/users/login')
 })
 router.get('/dashboard',async (req,res)=>{
@@ -84,10 +128,10 @@ router.get('/dashboard',async (req,res)=>{
 			}
 		}
 		await user.save()
-		res.render('users/dashBoard',{user:req.user,books:books})
+		res.render('users/dashBoard',{user:req.user,books:books,successMsg:`Welcome, ${req.user.name}`})
 	}
 	else{
-		req.flash('errorMsg','Please login')
+		req.flash('errorMsg','Please log in')
 		res.redirect('/users/login')
 	}
 })
